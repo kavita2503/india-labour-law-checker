@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Labour Law Compliance Checker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f0f4f8;color:#1a202c;min-height:100vh}
+.header{background:linear-gradient(135deg,#1a365d 0%,#2a4a7f 100%);color:#fff;padding:36px 24px 32px;text-align:center}
+.header h1{font-size:1.8rem;font-weight:700;letter-spacing:-0.3px;margin-bottom:8px}
+.header p{font-size:0.95rem;opacity:0.85;max-width:580px;margin:0 auto}
+.badge{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:4px 14px;font-size:0.78rem;margin-bottom:16px;letter-spacing:0.3px}
+.container{max-width:900px;margin:0 auto;padding:24px 16px}
+.card{background:#fff;border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.card h2{font-size:1rem;font-weight:600;color:#2d3748;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h2 .icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.icon-blue{background:#ebf4ff;color:#2b6cb0}
+.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;font-size:0.85rem;font-weight:500;cursor:pointer;color:#4a5568;transition:all 0.15s}
+.tab.active,.tab:hover{background:#1a365d;color:#fff;border-color:#1a365d}
+textarea{width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:14px;font-size:0.9rem;font-family:inherit;resize:vertical;min-height:180px;line-height:1.6;transition:border-color 0.15s;color:#2d3748}
+textarea:focus{outline:none;border-color:#2b6cb0}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{padding:11px 22px;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;border:none;transition:all 0.15s}
+.btn-primary{background:#1a365d;color:#fff}
+.btn-primary:hover{background:#2a4a7f}
+.btn-outline{background:#fff;color:#4a5568;border:1.5px solid #e2e8f0}
+.btn-outline:hover{border-color:#718096;color:#2d3748}
+.results{display:none}
+.score-box{display:flex;align-items:center;gap:20px;padding:20px;border-radius:10px;margin-bottom:20px}
+.score-box.green{background:#f0fff4;border:2px solid #68d391}
+.score-box.yellow{background:#fffff0;border:2px solid #f6e05e}
+.score-box.red{background:#fff5f5;border:2px solid #fc8181}
+.score-num{font-size:3rem;font-weight:700;line-height:1}
+.score-label{font-size:0.85rem;color:#718096;margin-top:4px}
+.score-verdict{font-size:1.05rem;font-weight:600}
+.score-sub{font-size:0.88rem;color:#4a5568;margin-top:4px}
+.section-title{font-size:0.95rem;font-weight:600;color:#2d3748;margin:20px 0 12px;display:flex;align-items:center;gap:6px}
+.flag-card{border-radius:8px;padding:14px 16px;margin-bottom:10px;border-left:4px solid}
+.flag-card.high{background:#fff5f5;border-color:#e53e3e}
+.flag-card.medium{background:#fffaf0;border-color:#dd6b20}
+.flag-card.low{background:#fffff0;border-color:#d69e2e}
+.flag-card.ok{background:#f0fff4;border-color:#38a169}
+.flag-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
+.flag-law{font-weight:600;font-size:0.9rem}
+.sev-pill{font-size:0.72rem;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.pill-high{background:#fed7d7;color:#c53030}
+.pill-medium{background:#feebc8;color:#c05621}
+.pill-low{background:#fefcbf;color:#b7791f}
+.pill-ok{background:#c6f6d5;color:#276749}
+.flag-issue{font-size:0.88rem;color:#4a5568;margin-bottom:6px}
+.flag-rec{font-size:0.85rem;color:#2d6a4f;background:#d8f3dc;padding:8px 12px;border-radius:6px}
+.flag-rec strong{color:#1b4332}
+.ok-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.ok-chip{background:#f0fff4;border:1px solid #68d391;color:#276749;font-size:0.8rem;padding:5px 12px;border-radius:20px}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.summary-stat{background:#f7fafc;border-radius:8px;padding:14px;text-align:center}
+.summary-stat .num{font-size:1.8rem;font-weight:700;color:#2d3748}
+.summary-stat .lbl{font-size:0.78rem;color:#718096;margin-top:2px}
+.no-issues{text-align:center;padding:24px;color:#38a169;font-weight:600;font-size:1rem}
+.disclaimer{background:#ebf8ff;border:1px solid #bee3f8;border-radius:8px;padding:12px 16px;font-size:0.82rem;color:#2c5282;margin-top:20px;line-height:1.5}
+.law-tag{font-size:0.75rem;color:#718096;margin-top:6px}
+.highlighted{background:#fef08a;padding:1px 3px;border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="badge">Free · No Login · India-Specific</div>
+  <h1>India Labour Law Compliance Checker</h1>
+  <p>Check your HR policies, offer letters, or job descriptions against key Indian labour laws. Flags violations with the specific law and recommended fix.</p>
+</div>
+
+<div class="container">
+  <div class="card">
+    <h2><span class="icon icon-blue">📋</span> What are you checking?</h2>
+    <div class="tabs">
+      <button class="tab active" onclick="setType('policy')">HR Policy</button>
+      <button class="tab" onclick="setType('offer')">Offer Letter</button>
+      <button class="tab" onclick="setType('jd')">Job Description</button>
+      <button class="tab" onclick="setType('general')">General Text</button>
+    </div>
+    <textarea id="inputText" placeholder="Paste your HR policy, offer letter, or job description here..."></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runCheck()">Check Compliance</button>
+      <button class="btn btn-outline" onclick="loadSample()">Load Sample</button>
+      <button class="btn btn-outline" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="card">
+      <div class="score-box" id="scoreBox">
+        <div>
+          <div class="score-num" id="scoreNum"></div>
+          <div class="score-label">Compliance Score</div>
+        </div>
+        <div>
+          <div class="score-verdict" id="scoreVerdict"></div>
+          <div class="score-sub" id="scoreSub"></div>
+        </div>
+      </div>
+      <div class="summary-grid" id="summaryGrid"></div>
+    </div>
+
+    <div id="issuesSection"></div>
+    <div id="okSection"></div>
+
+    <div class="disclaimer">
+      <strong>Disclaimer:</strong> This tool provides general guidance based on central Indian labour laws. State-specific rules (Shops & Establishments Acts, minimum wages) vary. Always verify with a qualified legal advisor before finalising HR documents. Laws cited: Industrial Disputes Act 1947, Factories Act 1948, Maternity Benefit Act 1961, Payment of Gratuity Act 1972, Equal Remuneration Act 1976, POSH Act 2013, Code on Wages 2019, and applicable state legislation.
+    </div>
+  </div>
+</div>
+
+<script>
+var docType = 'policy';
+function setType(t){
+  docType=t;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+var RULES = [
+  // POSH
+  {id:'posh1', cat:'POSH Act 2013', sev:'high',
+   p:/\b(internal\s+complaint\s+committee|ICC|POSH|sexual\s+harassment\s+policy|prevention\s+of\s+sexual\s+harassment)\b/i,
+   check:'present', // flag if ABSENT in policy docs
+   issue:'No mention of Internal Complaints Committee (ICC) or POSH policy.',
+   rec:'Every organisation with 10+ employees must constitute an ICC. Policy must mention the POSH Act 2013 and provide ICC details.',
+   law:'Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013',
+   types:['policy']},
+
+  // Maternity
+  {id:'mat1', cat:'Maternity Benefit Act', sev:'high',
+   p:/\b(maternity\s+leave|maternity\s+benefit|26\s+weeks|maternity)\b/i,
+   check:'present',
+   issue:'No mention of maternity leave entitlement.',
+   rec:'Maternity Benefit Act 1961 mandates 26 weeks paid maternity leave for establishments with 10+ employees (first two children). Must be explicitly stated.',
+   law:'Maternity Benefit Act, 1961',
+   types:['policy','offer']},
+
+  {id:'mat2', cat:'Maternity Benefit Act', sev:'high',
+   p:/maternity\s+leave\s+of\s+(?:only\s+)?(\d+)\s+weeks?/i,
+   check:'value', minVal:26,
+   issue:'Maternity leave stated as less than 26 weeks.',
+   rec:'The legal minimum is 26 weeks paid maternity leave for the first two children. Your policy must meet or exceed this.',
+   law:'Maternity Benefit Act, 1961',
+   types:['policy','offer','general']},
+
+  {id:'mat3', cat:'Maternity Benefit Act', sev:'medium',
+   p:/\b(nursing|creche|cr[eè]che)\b/i,
+   check:'present',
+   issue:'No creche/nursing facility mention.',
+   rec:'Establishments with 50+ employees must provide creche facilities within 500m. Consider adding a creche policy clause.',
+   law:'Maternity Benefit (Amendment) Act, 2017',
+   types:['policy']},
+
+  // Gratuity
+  {id:'grat1', cat:'Payment of Gratuity Act', sev:'high',
+   p:/\b(gratuity)\b/i,
+   check:'present',
+   issue:'No mention of gratuity entitlement.',
+   rec:'Gratuity is mandatory for employees completing 5 years of continuous service. Payable at 15 days\' wages per year of service. Must be mentioned in offer letters and policies.',
+   law:'Payment of Gratuity Act, 1972',
+   types:['policy','offer']},
+
+  // PF
+  {id:'pf1', cat:'EPF & MP Act', sev:'high',
+   p:/\b(provident\s+fund|PF|EPF|EPFO|employee[s\']?\s+provident)\b/i,
+   check:'present',
+   issue:'No mention of Provident Fund (EPF) contribution.',
+   rec:'EPF is mandatory for employees earning up to ₹15,000/month in establishments with 20+ employees. Both employer (12%) and employee (12%) contributions must be stated.',
+   law:'Employees\' Provident Fund and Miscellaneous Provisions Act, 1952',
+   types:['policy','offer']},
+
+  // ESIC
+  {id:'esic1', cat:'ESIC', sev:'high',
+   p:/\b(ESIC|ESI|employee[s\']?\s+state\s+insurance)\b/i,
+   check:'present',
+   issue:'No mention of ESIC (Employee State Insurance).',
+   rec:'ESIC is mandatory for employees earning up to ₹21,000/month in covered establishments. Employer contributes 3.25%, employee 0.75%. Covers medical, maternity, and disability benefits.',
+   law:'Employees\' State Insurance Act, 1948',
+   types:['policy','offer']},
+
+  // Notice Period
+  {id:'notice1', cat:'Industrial Disputes Act', sev:'high',
+   p:/notice\s+period\s+of\s+(\d+)\s+months?/i,
+   check:'value', minVal:1,
+   issue:'Notice period mentioned -- verify it meets statutory requirements.',
+   rec:'For establishments with 100+ workmen, notice period and retrenchment compensation must comply with Industrial Disputes Act 1947. No-notice termination (except for misconduct) requires government approval for large establishments.',
+   law:'Industrial Disputes Act, 1947',
+   types:['policy','offer','general']},
+
+  {id:'notice2', cat:'Industrial Disputes Act', sev:'high',
+   p:/\b(terminate[d]?\s+without\s+notice|immediate\s+termination\s+without|fired\s+without\s+notice|dismissed\s+without\s+notice)\b/i,
+   check:'absent',
+   issue:'"Terminate without notice" language detected.',
+   rec:'Except for proven misconduct, termination without notice violates Industrial Disputes Act. Provide notice or pay in lieu of notice. For 100+ workmen establishments, prior government permission is required for retrenchment.',
+   law:'Industrial Disputes Act, 1947',
+   types:['policy','offer','general']},
+
+  // Working Hours
+  {id:'hours1', cat:'Factories Act / Shops Act', sev:'high',
+   p:/\b(\d{2})\s*hours?\s+(?:per\s+)?week\b/i,
+   check:'maxVal', maxVal:48,
+   issue:'Working hours may exceed legal limit.',
+   rec:'Factories Act limits working hours to 48 hours/week (9 hours/day). Many state Shops & Establishments Acts cap at 48 hours/week for commercial establishments. Overtime must be paid at double the wage rate.',
+   law:'Factories Act, 1948 / Shops & Establishments Acts',
+   types:['policy','jd','offer','general']},
+
+  {id:'hours2', cat:'Factories Act / Shops Act', sev:'medium',
+   p:/\b(overtime|OT\s+pay|overtime\s+compensation)\b/i,
+   check:'present',
+   issue:'No overtime pay policy mentioned.',
+   rec:'Overtime must be paid at double the ordinary wage rate. If employees are required to work beyond 9 hours/day or 48 hours/week, overtime policy must be clearly stated.',
+   law:'Factories Act, 1948',
+   types:['policy']},
+
+  // Minimum Wage
+  {id:'minwage1', cat:'Code on Wages 2019', sev:'high',
+   p:/\b(minimum\s+wage|floor\s+wage)\b/i,
+   check:'present',
+   issue:'No reference to minimum wage compliance.',
+   rec:'Code on Wages 2019 mandates payment at or above the notified minimum wage for the relevant category and state. Offer letters should confirm compliance with applicable minimum wage.',
+   law:'Code on Wages, 2019',
+   types:['policy','offer']},
+
+  // Equal Pay
+  {id:'equal1', cat:'Equal Remuneration Act', sev:'high',
+   p:/\b(equal\s+pay|pay\s+equity|gender\s+pay|equal\s+remuneration)\b/i,
+   check:'present',
+   issue:'No equal remuneration/pay equity clause.',
+   rec:'Equal Remuneration Act 1976 prohibits pay discrimination based on gender for same or similar work. HR policies should include an explicit equal pay clause.',
+   law:'Equal Remuneration Act, 1976',
+   types:['policy']},
+
+  // Probation
+  {id:'prob1', cat:'Service Rules', sev:'medium',
+   p:/probation\s+(?:period\s+)?(?:of\s+)?(\d+)\s+months?/i,
+   check:'value', minVal:0, maxVal:12,
+   issue:'Probation period detected -- ensure it is reasonable and compliant.',
+   rec:'While no law mandates a specific probation length, periods exceeding 6 months should be justified. Probationers retain basic statutory rights (PF, ESI, gratuity accrual). Avoid using probation to bypass statutory obligations.',
+   law:'General Service Rules / Model Standing Orders',
+   types:['policy','offer']},
+
+  // Non-compete
+  {id:'noncomp1', cat:'Contract Act / Restraint of Trade', sev:'medium',
+   p:/\b(non[-\s]?compete|non[-\s]?solicitation|restraint\s+of\s+trade|cannot\s+join\s+competitor|prohibited\s+from\s+joining)\b/i,
+   check:'absent',
+   issue:'Non-compete / restraint of trade clause detected.',
+   rec:'Post-employment non-compete clauses are largely unenforceable in India under Section 27 of the Indian Contract Act 1872. Courts have consistently struck these down. Retain only reasonable non-disclosure and client non-solicitation clauses.',
+   law:'Indian Contract Act, 1872 (Section 27)',
+   types:['policy','offer','general']},
+
+  // Leaves
+  {id:'leave1', cat:'Shops & Establishments Act', sev:'medium',
+   p:/\b(earned\s+leave|annual\s+leave|privilege\s+leave|PL\b|EL\b|casual\s+leave|sick\s+leave)\b/i,
+   check:'present',
+   issue:'No leave entitlements mentioned.',
+   rec:'Leave entitlements vary by state Shops & Establishments Act. Typically: 12-15 days Earned Leave, 12 days Casual/Sick Leave per year. Earned Leave must be encashable. Policy must state leave types, accrual, and encashment rules.',
+   law:'State Shops & Establishments Acts',
+   types:['policy']},
+
+  {id:'leave2', cat:'Shops & Establishments Act', sev:'low',
+   p:/\b(leave\s+encashment|encash\s+leave|carry\s+forward)\b/i,
+   check:'present',
+   issue:'No leave encashment/carry-forward policy.',
+   rec:'State laws vary on leave carry-forward limits (typically 30-45 days max). Employees must be allowed to encash unused Earned Leave on separation. Clearly state encashment rules.',
+   law:'State Shops & Establishments Acts',
+   types:['policy']},
+
+  // Arbitration
+  {id:'arb1', cat:'Contract / Dispute Resolution', sev:'low',
+   p:/\b(mandatory\s+arbitration|compulsory\s+arbitration|disputes?\s+shall\s+be\s+resolved\s+by\s+arbitration)\b/i,
+   check:'absent',
+   issue:'Mandatory arbitration clause for employment disputes detected.',
+   rec:'Mandatory arbitration clauses in employment contracts are increasingly scrutinised. Industrial disputes must follow the Industrial Disputes Act 1947 process (conciliation, labour court). Ensure arbitration is not used to waive statutory rights.',
+   law:'Industrial Disputes Act, 1947 / Arbitration and Conciliation Act, 1996',
+   types:['policy','offer']},
+
+  // Bond / Training Bond
+  {id:'bond1', cat:'Contract Act', sev:'medium',
+   p:/\b(training\s+bond|service\s+bond|bond\s+of\s+(\d+)\s+year|bond\s+amount|recover\s+training\s+cost)\b/i,
+   check:'absent',
+   issue:'Training bond or service bond detected.',
+   rec:'Training bonds must be reasonable in duration (courts have upheld 1-2 years) and bond amount must be proportional to actual training costs. Blanket recovery clauses without documented training costs may be unenforceable.',
+   law:'Indian Contract Act, 1872',
+   types:['policy','offer']},
+
+  // PI / IP Assignment
+  {id:'ip1', cat:'IP / Copyright', sev:'low',
+   p:/\b(intellectual\s+property|IP\s+assignment|inventions?\s+belong|work\s+product\s+ownership)\b/i,
+   check:'absent', // flag if absent in offer letters
+   issue:'No IP assignment clause.',
+   rec:'Offer letters should clearly state that work product created during employment belongs to the employer. Under Indian Copyright Act, works created in the course of employment vest with the employer, but explicit clauses avoid disputes.',
+   law:'Copyright Act, 1957',
+   types:['offer']},
+
+  // Confidentiality
+  {id:'conf1', cat:'Trade Secrets / Confidentiality', sev:'low',
+   p:/\b(confidentiality|non[-\s]?disclosure|NDA|trade\s+secret)\b/i,
+   check:'present',
+   issue:'No confidentiality/NDA clause.',
+   rec:'Include a confidentiality clause covering proprietary information, client data, and business strategies. Unlike post-employment non-competes, confidentiality obligations are generally enforceable in India.',
+   law:'Indian Contract Act, 1872',
+   types:['offer']},
+
+  // Data Privacy
+  {id:'data1', cat:'DPDP Act 2023', sev:'medium',
+   p:/\b(personal\s+data|data\s+privacy|DPDP|Digital\s+Personal\s+Data|employee\s+data|data\s+protection)\b/i,
+   check:'present',
+   issue:'No employee data privacy / DPDP compliance clause.',
+   rec:'The Digital Personal Data Protection Act 2023 (DPDP) is now in force. HR policies must address: consent for processing employee personal data, purpose limitation, data retention periods, and employee rights to access/correct their data.',
+   law:'Digital Personal Data Protection Act, 2023',
+   types:['policy']},
+
+  // Wrongful termination language
+  {id:'term1', cat:'Industrial Disputes Act', sev:'high',
+   p:/\b(at[-\s]will\s+employment|employment\s+at\s+will|terminate\s+at\s+any\s+time\s+without\s+cause|fire\s+at\s+will)\b/i,
+   check:'absent',
+   issue:'"At-will employment" language detected.',
+   rec:'At-will employment (US concept) is not valid in India. Indian law requires notice period, reasons for termination, and in many cases compliance with Industrial Disputes Act (for workmen). Remove this language immediately.',
+   law:'Industrial Disputes Act, 1947',
+   types:['policy','offer','general']},
+
+  // Bonus
+  {id:'bonus1', cat:'Payment of Bonus Act', sev:'medium',
+   p:/\b(bonus|performance\s+bonus)\b/i,
+   check:'present',
+   issue:'No statutory bonus compliance clause.',
+   rec:'Payment of Bonus Act 1965 mandates a minimum bonus of 8.33% of annual wages (or ₹100, whichever is higher) for employees earning up to ₹21,000/month. Discretionary bonus policies should clarify this does not replace statutory bonus.',
+   law:'Payment of Bonus Act, 1965',
+   types:['policy']},
+];
+
+var SAMPLES = {
+  policy:`EMPLOYEE HANDBOOK - LEAVE AND TERMINATION POLICY
+
+Leave Policy:
+Employees are entitled to 12 days casual leave and 15 days earned leave per year. Earned leave can be carried forward up to 30 days. Female employees are entitled to 12 weeks maternity leave as per company policy.
+
+Provident Fund: The company contributes 12% of basic salary to EPF as per statutory requirements. Employee contribution is 12% of basic salary.
+
+ESIC: Applicable employees are covered under ESIC. Employee contribution is 0.75% and employer contribution is 3.25%.
+
+Gratuity: Employees completing 5 years of continuous service are eligible for gratuity as per the Payment of Gratuity Act.
+
+Working Hours: Standard working hours are 9 hours per day, 5 days a week (45 hours per week). Overtime will be compensated as per applicable law.
+
+Termination: Employment may be terminated by either party with 60 days notice. The company reserves the right to terminate employment at-will in cases of gross misconduct.
+
+Non-Compete: Employees agree not to join any competitor company for a period of 2 years after leaving the organisation.
+
+Bonus: Performance bonus is discretionary and at the sole discretion of management.`,
+
+  offer:`OFFER LETTER
+
+Dear [Candidate Name],
+
+We are pleased to offer you the position of Software Engineer at TechCorp India Pvt. Ltd.
+
+Compensation:
+- Basic Salary: ₹50,000 per month
+- HRA: ₹20,000 per month
+- PF: As per EPF Act (12% of basic)
+- Gratuity: As per Payment of Gratuity Act after completion of 5 years
+
+Probation: You will be on probation for 6 months. During probation, employment may be terminated by either party with 7 days notice.
+
+Working Hours: You will be expected to work as many hours as necessary to complete your responsibilities, including evenings and weekends as required.
+
+Non-Compete: You agree not to work for any competitor or start a competing business for 18 months after leaving.
+
+Training Bond: If you leave within 24 months, you will be required to repay ₹2,00,000 as training costs.
+
+Confidentiality: You agree to maintain confidentiality of all company information during and after employment.
+
+Intellectual Property: All work product, inventions, and ideas created during employment are the sole property of TechCorp India Pvt. Ltd.`
+};
+
+function loadSample(){
+  var t = docType==='offer' ? SAMPLES.offer : SAMPLES.policy;
+  document.getElementById('inputText').value = t;
+  // Auto-set tab
+  if(docType==='offer'){
+    document.querySelectorAll('.tab').forEach((b,i)=>{b.classList.remove('active'); if(i===1)b.classList.add('active');});
+    docType='offer';
+  } else {
+    document.querySelectorAll('.tab').forEach((b,i)=>{b.classList.remove('active'); if(i===0)b.classList.add('active');});
+    docType='policy';
+  }
+}
+
+function clearAll(){
+  document.getElementById('inputText').value='';
+  document.getElementById('results').style.display='none';
+}
+
+function runCheck(){
+  var text = document.getElementById('inputText').value.trim();
+  if(!text){alert('Please paste your document text first.');return;}
+
+  var issues=[], ok=[], score=100;
+  var sevW = {high:20, medium:10, low:5};
+
+  RULES.forEach(function(rule){
+    // Only check rules relevant to this doc type
+    if(rule.types && rule.types.indexOf(docType)===-1) return;
+
+    var match = rule.p.test(text);
+    var flagged = false;
+    var issueText = rule.issue;
+
+    if(rule.check==='present'){
+      // Flag if NOT found
+      if(!match){ flagged=true; }
+    } else if(rule.check==='absent'){
+      // Flag if found
+      if(match){ flagged=true; }
+    } else if(rule.check==='value'){
+      // Extract number and check
+      var m = text.match(rule.p);
+      if(m){
+        var val = parseInt(m[1]||m[0]);
+        if(rule.minVal!==undefined && val < rule.minVal){ flagged=true; issueText = rule.issue; }
+        if(rule.maxVal!==undefined && val > rule.maxVal){ flagged=true; issueText = rule.issue; }
+      }
+    } else if(rule.check==='maxVal'){
+      var m2 = text.match(rule.p);
+      if(m2){
+        var val2 = parseInt(m2[1]);
+        if(val2 && val2 > rule.maxVal){ flagged=true; }
+      }
+    }
+
+    if(flagged){
+      score -= (sevW[rule.sev]||5);
+      issues.push({rule:rule, found:match});
+    } else if(rule.check==='present' && match){
+      ok.push(rule);
+    }
+  });
+
+  score = Math.max(0, score);
+  renderResults(score, issues, ok, text);
+}
+
+function renderResults(score, issues, ok, text){
+  var res = document.getElementById('results');
+  res.style.display='block';
+
+  // Score box
+  var box = document.getElementById('scoreBox');
+  box.className = 'score-box ' + (score>=80?'green':score>=55?'yellow':'red');
+  document.getElementById('scoreNum').textContent = score;
+
+  var verdict = score>=80 ? 'Largely Compliant' : score>=55 ? 'Needs Attention' : 'High Risk -- Action Required';
+  var sub = score>=80 ? 'Minor gaps may exist. Review flagged items.' :
+            score>=55 ? 'Several compliance gaps detected. Address before use.' :
+            'Significant violations found. Do not use without legal review.';
+  document.getElementById('scoreVerdict').textContent = verdict;
+  document.getElementById('scoreSub').textContent = sub;
+
+  // Summary grid
+  var high = issues.filter(i=>i.rule.sev==='high').length;
+  var med = issues.filter(i=>i.rule.sev==='medium').length;
+  var low = issues.filter(i=>i.rule.sev==='low').length;
+  document.getElementById('summaryGrid').innerHTML =
+    stat(high,'High Risk','#e53e3e') + stat(med,'Medium Risk','#dd6b20') +
+    stat(low,'Low Risk','#d69e2e') + stat(ok.length,'Compliant','#38a169');
+
+  // Issues
+  var issueHTML = '';
+  if(issues.length>0){
+    issueHTML = '<div class="section-title">⚠️ Issues Found (' + issues.length + ')</div>';
+    ['high','medium','low'].forEach(function(sev){
+      issues.filter(i=>i.rule.sev===sev).forEach(function(item){
+        issueHTML += '<div class="flag-card '+sev+'">' +
+          '<div class="flag-top"><span class="flag-law">'+item.rule.cat+'</span>' +
+          '<span class="sev-pill pill-'+sev+'">' + sev.charAt(0).toUpperCase()+sev.slice(1)+' Risk</span></div>' +
+          '<div class="flag-issue">'+item.rule.issue+'</div>' +
+          '<div class="flag-rec"><strong>Recommendation:</strong> '+item.rule.rec+'</div>' +
+          '<div class="law-tag">📖 '+item.rule.law+'</div>' +
+          '</div>';
+      });
+    });
+  } else {
+    issueHTML = '<div class="no-issues">✓ No major issues found for the selected document type.</div>';
+  }
+  document.getElementById('issuesSection').innerHTML = issueHTML;
+
+  // OK items
+  var okHTML = '';
+  if(ok.length>0){
+    okHTML = '<div class="section-title">✅ Compliant Areas (' + ok.length + ')</div><div class="ok-list">';
+    ok.forEach(function(r){ okHTML += '<span class="ok-chip">✓ '+r.cat+'</span>'; });
+    okHTML += '</div>';
+  }
+  document.getElementById('okSection').innerHTML = okHTML;
+
+  res.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function stat(n,l,c){
+  return '<div class="summary-stat"><div class="num" style="color:'+c+'">'+n+'</div><div class="lbl">'+l+'</div></div>';
+}
+</script>
+</body>
+</html>
